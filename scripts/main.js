@@ -499,7 +499,6 @@ const otherKeys = [
 	KeyCode.enter,
 	KeyCode.insert,
 	KeyCode.end,
-	KeyCode.backspace,
 	KeyCode.back,
 	KeyCode.backslash,
 	KeyCode.equals,
@@ -946,6 +945,7 @@ Events.on(
                             if (isRebinding) {
 								var value = pressedKeys.map(k => k.value).reduce((a, b) => a + "+" + b);
 								bindSchemTo(schem.name(), value);
+								pressedKeys.length = 0;
                             } else {
 								var keysStr = getSchemBinding(schem.name());
 								if (keysStr != null) {
@@ -973,10 +973,14 @@ Events.on(
                             if (!modifiersOnly) {
                                 pressedKeys = tempKeys;
                             }
-                        } else if (Core.input.keyDown(KeyCode.escape)) {
-							unbindSchem(schem.name());
-						}
+                        }
                         if (isRebinding) {
+							if (Core.input.keyDown(KeyCode.backspace)) {
+								unbindSchem(schem.name());
+								isRebinding = false;
+								pressedKeys.length = 0;
+								return;
+							}
                             var value = pressedKeys.length == 0 ? "..." : pressedKeys.map(k => k.value).reduce((a, b) => a + "+" + b);
 							var existingSchem = getSchemByKeys(value);
 							if (existingSchem != null && existingSchem != schem.name()) {
@@ -991,6 +995,7 @@ Events.on(
                             	b.setText("Press to confirm: " + value);
 							}
                         } else {
+							b.setColor(Color.white);
 							var value = getSchemBinding(schem.name());
                             b.setText("Current bind: " + (value == null ? "<Unbound>" : value));
                         }
